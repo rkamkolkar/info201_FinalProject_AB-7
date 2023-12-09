@@ -1,0 +1,262 @@
+---
+title: "NYC"
+output: pdf_document
+date: "2023-12-07"
+---
+
+##Summary:
+New York City stands as a highly sought-after travel destination and a thriving market for Airbnb. Functioning as an online marketing platform, Airbnb facilitates connections between individuals seeking accommodation (Airbnb guests) and those offering their properties for short-term or long-term rentals (Airbnb hosts). The provided dataset presents authentic Airbnb data for New York City, detailing the listing activity and metrics throughout the year 2019.
+
+
+##Introduction
+The dataset encompasses the listing activities and metrics in New York City for the year 2019. It encompasses prices for listings across various neighborhood groups within different city neighborhoods.
+Explanatory variables: price, name, host id, host name, Neighborhood-group, neighborhood, latitude, longitude, room-type, minimum-nights, number of reviews, last review, review per month, calculated host listings, and availability 365 days.
+
+
+##Dataset
+Download the dataset
+
+```{r setup, include=FALSE}
+library(readr)
+AB_NYC_2019 <- read_csv("C:/Users/lapto/OneDrive/Desktop/R analysis/AB_NYC_2019.csv")
+airbnb<-AB_NYC_2019
+```
+
+
+Understanding the data
+```{r setup, include=FALSE}
+dim(airbnb)
+```
+
+```{r}
+str(airbnb)
+```
+```{r}
+# Install and load the visdat package
+install.packages("visdat")
+library(visdat)
+vis_miss(airbnb)
+```
+Initially, we examined the data's summary statistics and subsequently assessed the presence of missing values, identifying a 1.3% absence in a specific variable. To address this, we employed mean imputation as a technique to rectify NA values and uphold the integrity of the sample size.
+
+
+##Distribution Of Airbnb Price
+```{r}
+cleanup =theme(panel.grid.major =element_blank(),
+               panel.grid.minor =element_blank(), 
+               panel.background =element_blank(), 
+               axis.line.x =element_line(color ="black"),
+               axis.line.y =element_line(color ="black"),
+               legend.key =element_rect(fill ="white"),
+               text =element_text(size =15))
+#Distribution of price
+par(mfrow=c(2,1))
+ggplot(airbnb) + 
+  cleanup+
+  geom_histogram(aes(price),fill = 'orange',alpha = 0.85,binwidth = 15) + 
+  theme_minimal(base_size = 13) + xlab("Price") + ylab("Frequency") + 
+  ggtitle("The Distrubition of Price") 
+```
+
+
+```{r}
+#Transformed distribution of Price
+ggplot(airbnb, aes(price)) +
+  cleanup+
+  geom_histogram(bins = 30, aes(y = ..density..), fill = "orange") + 
+  geom_density(alpha = 0.2, fill = "orange") +ggtitle("Transformed distribution of price",
+  subtitle = expression("With" ~'log'[10] ~ "transformation of x-axis")) + scale_x_log10()
+```
+
+
+##Correlation Metrics
+```{r}
+# Install and load the corrplot library
+install.packages("corrplot")
+library(corrplot)
+airbnb_cor <- airbnb[, sapply(airbnb, is.numeric)]
+airbnb_cor <- airbnb_cor[complete.cases(airbnb_cor), ]
+correlation_matrix <- cor(airbnb_cor, method = "spearman")
+corrplot(correlation_matrix, method = "color")
+```
+The variable "Price" exhibits a positive correlation with the minimum number of nights and the availability of 365 days. On the other hand, the calculated host listings demonstrate a negative correlation with price, and the accompanying graph illustrates the weakest correlation with the number of reviews.
+
+
+
+##Average Price by Room Type
+```{r}
+par(mfrow=c(1,3))
+ggplot(airbnb, aes(x = room_type, y = mean(price), fill = room_type))+
+  geom_bar(stat = "identity")+theme_minimal()+
+  cleanup+
+  labs(title = "Average price by Room type",
+       x = "Room Type", y = "Average Price") 
+```
+
+```{r}
+#Average Price each Neighbourhood_group
+ggplot(airbnb, aes(x = fct_infreq(neighbourhood_group), y = mean(price), fill = neighbourhood_group))+
+  geom_bar(stat = "identity")+
+  cleanup+
+  labs(title = "Average price each Neighborhood Group",
+       x = "Neighbourhood Group", y = "Price") +
+  theme(legend.position = "right")
+```
+In the first chart, it is evident that Entire home/apartment listings command a higher average price, while private rooms and shared accommodations exhibit comparatively lower nightly rates. The second graph categorizes properties into neighborhood groups, and the third graph illustrates the average price within each of these groups. Notably, Manhattan and Brooklyn stand out with higher average nightly prices compared to other neighborhood groups.
+
+
+
+```{r}
+#Property types in Neighborhood Group 
+ggplot(airbnb, aes(x = fct_infreq(neighbourhood_group), fill= room_type))+
+  geom_bar()+
+  cleanup+
+  labs(title = "Property types in Neighbourhood_group ",
+       x = "Neighbourhood Group", y = "No. of listings") +
+  theme(legend.position = "right")
+```
+
+
+```{r}
+ggplot(airbnb, aes(number_of_reviews, price)) +
+  theme(axis.title = element_text(), axis.title.x = element_text()) +
+  geom_point(aes(size = price), alpha = 0.05, color = "red") +
+  cleanup+
+  xlab("Number of reviews") +
+  ylab("Price") +
+  ggtitle("Relationship between number of reviews",
+          subtitle = "The most expensive objects have small number of reviews (or 0)")
+```
+
+```{r}
+cleanup <- theme(panel.grid.major = element_blank(),
+                 panel.grid.minor = element_blank(), 
+                 panel.background = element_blank(), 
+                 axis.line.x = element_line(color = 'black'), 
+                 axis.line.y = element_line(color = 'black'), 
+                 legend.key = element_rect(fill = 'white'), 
+                 text = element_text(size = 15)) 
+
+
+bar <- ggplot(airbnb, aes(neighbourhood_group, price, fill = room_type)) 
+bar+stat_summary(fun.y = mean,
+                 geom = "bar", 
+                 position = "dodge") + 
+  stat_summary(fun.data = mean_cl_normal, 
+               geom = "errorbar", 
+               position = position_dodge(width = 0.90), 
+               width = .25)+ 
+  xlab("Neighbourhood Groups")+ 
+  ylab("Rental Price")+ 
+  cleanup+scale_fill_manual(name = "Property Types", 
+                            labels = c("Entire House", "Private Room", "Shared Room"), 
+                            values = c("deeppink3", "hotpink", "pink"))
+```
+The graph above provides insights into the pricing of different property types across neighborhood groups. Among them, Manhattan stands out as the most expensive. Notably, shared room type accommodations have the lowest nightly price compared to other property types.
+
+
+
+```{r}
+airbnb %>%
+  group_by(neighbourhood) %>%
+  dplyr::summarize(num_listings = n(), 
+            borough = unique(neighbourhood_group)) %>%
+  top_n(n = 10, wt = num_listings) %>%
+  ggplot(aes(x = fct_reorder(neighbourhood, num_listings), 
+             y = num_listings, fill = borough)) +
+  geom_col() +
+  coord_flip() +
+  theme(legend.position = "bottom") +
+  labs(title = "Top 10 neighborhoods by no. of listings",
+       x = "Neighborhood", y = "No. of listings")
+```
+
+
+
+
+```{r}
+table(is.na(airbnb))
+```
+
+
+```{r}
+apply(airbnb,2,function(x) sum(is.na(x))) 
+```
+
+
+
+```{r}
+#Mean imputation
+airbnb$reviews_per_month[is.na(airbnb$reviews_per_month)] <- mean(airbnb$reviews_per_month, na.rm = TRUE)
+summary(airbnb$reviews_per_month)
+```
+
+
+
+```{r}
+#Remove unwanted Variables
+airbnb$last_review = NULL
+airbnb$id = NULL
+airbnb$host_id = NULL
+airbnb$name = NULL
+airbnb$host_name = NULL
+airbnb$neighbourhood = NULL
+```
+
+
+
+
+```{r}
+airbnb$price[airbnb$price == 0]<- 1
+#Split the final data into train and test
+set.seed(123)
+smp_siz = floor(0.75*nrow(airbnb)) 
+train_ind = sample(seq_len(nrow(airbnb)),size = smp_siz)
+train =airbnb[train_ind,]
+test=airbnb[-train_ind,]
+
+#Model1
+model1<- lm(log(price)~ minimum_nights+number_of_reviews+reviews_per_month+availability_365, data = train)
+summary(model1)
+```
+
+
+```{r}
+prediction1<-predict(model1, newdata = test)
+prediction1<- exp(prediction1)
+mse = mean(model1$residuals^2)
+AIC(model1)
+```
+
+
+```{r}
+BIC(model1)
+```
+
+
+
+
+```{r}
+plot(log(test$price), main = "Linear Model", ylab = "Test Set Rental Count", pch = 20)
+points(predict(model1_step, newdata = test), col = "red", pch = 20)
+```
+
+
+##CONCLUSIONS
+This study aimed to forecast the nightly prices of Airbnb listings in NYC. In our exploratory analysis, we delved into various variables impacting the listing prices. While all variables proved to be statistically significant, the calculated host listing and last reviews did not contribute significantly to the study. From the data, the following insights were gleaned to address our research question:
+
+• Neighborhood group and property type emerged as crucial factors.
+• Manhattan stood out for having the highest-priced properties compared to other neighborhood groups.
+• Brooklyn presented itself as a favorable choice with an average price and a notable number of reviews.
+• Higher-priced properties exhibited a lower number of reviews compared to those in the low or average price range.
+• The availability of rooms did not ensure a higher average listing price.
+
+Employing multiple linear models, we observed that the duration prediction exhibited a good fit with the training data and generalization error. However, the prediction of nightly pricing displayed periodically increasing loss, highlighting an area that requires attention in future research efforts.
+
+
+##FUTURE DIRECTIONS
+• This study has identified various limitations. Subsequent research should investigate additional factors such as season, property insights, neighborhood crime rates, and monthly Airbnb host revenue.
+
+• Employing text mining techniques, we aim to analyze the listing names to identify optimal words for use in the listings.
+
+• Future endeavors will involve a more in-depth exploration of the data using advanced predictive modeling techniques, including Decision Tree, Random Forest, and Support Vector Machine, with the goal of enhancing predictive accuracy.
