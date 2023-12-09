@@ -1,0 +1,96 @@
+---
+title: "Final Project"
+author: "Rasan Kamkolkar"
+date: "2023-12-07"
+output: html_document
+---
+
+
+```{r setup, warning=FALSE}
+library(readxl)
+library(tidyverse)
+ny4 <- read_excel("../Final Project/ny_april_10009_HAN (1) (1) 2.xlsx")
+nyp <- read_excel("../Final Project/ny_property_HAN (1) (1) 2.xlsx")
+
+#combine two datasets
+nyp4 <- left_join(ny4, nyp, by = c('PropertyID' = 'Property ID'))
+
+nyd_ <- nyp4[,c(-1,-3,-6:-12,-15:-20,-22,-32,-43:-44,-52,-53,-56,-57)]
+
+#change "NA" to 0
+nyd_[,20] <- as.numeric(nyd_[[20]])
+sum(is.na(nyd_[,20]))
+nyd_[is.na(nyd_[, 20]), 20] <- 0
+sum(is.na(nyd_[,20]))
+
+nyd_[,21] <- as.numeric(nyd_[[21]])
+nyd_[is.na(nyd_[, 21]), 21] <- 0
+sum(is.na(nyd_[,21]))
+
+nyd_[,25] <- as.numeric(nyd_[[25]])
+nyd_[is.na(nyd_[, 25]), 25] <- 0
+
+#remove useless listing types
+nyd_1 = nyd_[nyd_[,5] != "40827",]
+nyd_1 = nyd_1[nyd_1[,5] != "41330",]
+nyd_1 = nyd_1[nyd_1[,5] != "41935",]
+
+#convert char to num variables 
+nyd_1[,12] = as.numeric(nyd_1[[12]])
+nyd_1[,16] = as.numeric(nyd_1[[16]])
+nyd_1[,17] = as.numeric(nyd_1[[17]])
+nyd_1[,22] = as.numeric(nyd_1[[22]])
+nyd_1[,25] = as.numeric(nyd_1[[25]])
+nyd_2 = na.omit(nyd_1)
+
+
+#convert char to factor
+nyd_3 <- nyd_2 %>% 
+  mutate(
+    `Property Type` = as.factor(`Property Type`),
+    Neighborhood = as.factor(Neighborhood),
+    `Listing Type` = as.factor(`Listing Type`),
+    Superhost = as.factor(Superhost),
+    `Cancellation Policy` = as.factor(`Cancellation Policy`),
+    `Business Ready` = as.factor(`Business Ready`),
+    `Instantbook Enabled` = as.factor(`Instantbook Enabled`)
+  )
+
+```
+
+
+```{r}
+nyd_3 %>% 
+  head()
+```
+
+```{r}
+nyd_3 %>% 
+  ggplot(aes(x=`Number of Reviews`, y=`Number of Bookings LTM`)) +
+  geom_point() +
+  stat_smooth(method = "lm", 
+              formula = y ~ log(x), 
+              col = "red")
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
