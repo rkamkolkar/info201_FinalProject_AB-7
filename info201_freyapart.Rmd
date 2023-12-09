@@ -4,19 +4,21 @@ name: "Freya Huang"
 output: html_document
 date: "2023-12-03"
 ---
-```{r}
+```{r -1, warning=FALSE, echo=FALSE}
 library(readxl)
+
 ny4 <- read_excel("~/Desktop/Research/dataset/ny_april_10009_HAN (1) (1) 2.xlsx")
 head(ny4)
 ```
-```{r}
+
+```{r 0, warning=FALSE,echo=FALSE}
 nyp <- read_excel("~/Desktop/Research/dataset/ny_property_HAN (1) (1) 2.xlsx")
 head(nyp)
 ```
 
 
 #combine two datasets
-```{r}
+```{r 1, warning=FALSE,echo=FALSE}
 library(tidyverse)
 nyp4 <- left_join(ny4, nyp, by = c('PropertyID' = 'Property ID'))
 head(nyp4)
@@ -25,7 +27,7 @@ head(nyp4)
 #create dataset nyd
 #prepared the data
 
-```{r}
+```{r 2, warning=FALSE,echo=FALSE}
 nyd_ <- nyp4[,c(-1,-3,-6:-12,-15:-20,-22,-32,-43:-44,-52,-53,-56,-57)]
 
 #change "NA" to 0
@@ -96,7 +98,7 @@ head(nyd_sta)
 ```
 
 # Summary the daily blocking status for each property
-```{r}
+```{r 3, warning=FALSE,echo=FALSE}
 library(dplyr)
 library(ggplot2)
 
@@ -106,8 +108,9 @@ nyd_sta <- nyd_sta %>%
 # Calculate the fraction of the number of days of a month already supplied (always 30 days)
 nyd_sta <- nyd_sta %>%
   mutate(FractionDaysSupplied = `Count Available Days LTM` / 30)
+```
 
-
+```{r 4, warning=FALSE,echo=FALSE}
 library(tidyverse)
 
 nyd_sta_processed_ <- nyd_sta %>%
@@ -141,7 +144,7 @@ head(nyd_sta_processed)
 
 
 # Create a ggplot for Supply Curve Analysis:
-```{r}
+```{r,echo=FALSE}
 library(ggplot2)
 nyd_sta_plot <- ggplot(nyd_sta_processed, aes(x = FractionSupplied, y = `Average Daily Rate`, color = BlockingStatus)) +
   geom_point() +
@@ -154,7 +157,7 @@ nyd_sta_plot
 ```
 
 # Perform linear regression
-```{r}
+```{r,echo=FALSE}
 library(dplyr)
 lm_model <- lm(`Average Daily Rate` ~ FractionSupplied, data = nyd_sta_processed)
 
@@ -173,7 +176,7 @@ cat("R-squared Value:", r_squared, "\n")
 
 ## according to different Neighborhood and property types
 #All Neighborhood Analysis:
-```{r}
+```{r,echo=FALSE}
 plot_all <- ggplot(nyd_sta_processed, aes(x = FractionSupplied, y = Price)) +
   geom_point(aes(color = as.factor(`Property Type`), shape = as.factor(Neighborhood))) +
   labs(x = "Blocking Status", y = "Daily Revenue") +
@@ -182,7 +185,7 @@ plot_all <- ggplot(nyd_sta_processed, aes(x = FractionSupplied, y = Price)) +
 plot_all
 ```
 #East Village Neighborhood Analysis:
-```{r}
+```{r,echo=FALSE}
 plot_EastV <- ggplot(nyd_sta_processed, aes(x = FractionSupplied, y = Price)) +
   geom_point(data = subset(nyd_sta_processed, Neighborhood == "East Village"),
              aes(color = as.factor(`Property Type`))) +
@@ -193,7 +196,7 @@ plot_EastV
 ```
 
 #Stuyvesant Town Neighborhood Analysis:
-```{r}
+```{r,echo=FALSE}
 plot_Stown <- ggplot(nyd_sta_processed, aes(x = FractionSupplied, y = Price)) +
   geom_point(data = subset(nyd_sta_processed, Neighborhood == "Stuyvesant Town"),
              aes(color = as.factor(`Property Type`))) +
@@ -204,9 +207,10 @@ plot_Stown
 ```
 
 # write the dataset
-```{r}
+```{r,echo=FALSE}
 library(writexl)
 
 # Export to Excel
 write_xlsx(nyd_sta, "nyd-sta.xlsx")
 ```
+
