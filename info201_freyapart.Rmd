@@ -1,0 +1,212 @@
+---
+title: "final project"
+name: "Freya Huang"
+output: html_document
+date: "2023-12-03"
+---
+```{r}
+library(readxl)
+ny4 <- read_excel("~/Desktop/Research/dataset/ny_april_10009_HAN (1) (1) 2.xlsx")
+head(ny4)
+```
+```{r}
+nyp <- read_excel("~/Desktop/Research/dataset/ny_property_HAN (1) (1) 2.xlsx")
+head(nyp)
+```
+
+
+#combine two datasets
+```{r}
+library(tidyverse)
+nyp4 <- left_join(ny4, nyp, by = c('PropertyID' = 'Property ID'))
+head(nyp4)
+```
+
+#create dataset nyd
+#prepared the data
+
+```{r}
+nyd_ <- nyp4[,c(-1,-3,-6:-12,-15:-20,-22,-32,-43:-44,-52,-53,-56,-57)]
+
+#change "NA" to 0
+nyd_[,20] <- as.numeric(nyd_[[20]])
+sum(is.na(nyd_[,20]))
+nyd_[is.na(nyd_[, 20]), 20] <- 0
+sum(is.na(nyd_[,20]))
+
+nyd_[,21] <- as.numeric(nyd_[[21]])
+nyd_[is.na(nyd_[, 21]), 21] <- 0
+sum(is.na(nyd_[,21]))
+
+nyd_[,25] <- as.numeric(nyd_[[25]])
+nyd_[is.na(nyd_[, 25]), 25] <- 0
+
+#remove useless listing types
+nyd_1 = nyd_[nyd_[,5] != "40827",]
+nyd_1 = nyd_1[nyd_1[,5] != "41330",]
+nyd_1 = nyd_1[nyd_1[,5] != "41935",]
+
+#convert char to num variables 
+nyd_1[,12] = as.numeric(nyd_1[[12]])
+nyd_1[,16] = as.numeric(nyd_1[[16]])
+nyd_1[,17] = as.numeric(nyd_1[[17]])
+nyd_1[,22] = as.numeric(nyd_1[[22]])
+nyd_1[,25] = as.numeric(nyd_1[[25]])
+nyd_2 = na.omit(nyd_1)
+
+
+#convert char to factor
+nyd_3 <- nyd_2 %>% 
+  mutate(
+    `Property Type` = as.factor(`Property Type`),
+    Neighborhood = as.factor(Neighborhood),
+    `Listing Type` = as.factor(`Listing Type`),
+    Superhost = as.factor(Superhost),
+    `Cancellation Policy` = as.factor(`Cancellation Policy`),
+    `Business Ready` = as.factor(`Business Ready`),
+    `Instantbook Enabled` = as.factor(`Instantbook Enabled`)
+  )
+
+# dependent variable setting for nyd
+nyd_4 <- nyd_3 %>%
+  mutate(B = ifelse(Status == "B", 1, 0))
+nyd_sta <- nyd_4[,-2]
+
+# Assuming your dataset is named 'your_data'
+# Replace 'your_data' with the actual name of your dataset
+
+# Load the dplyr package for additional functionality
+library(dplyr)
+
+# Basic summary statistics
+summary_stats <- nyd_sta %>%
+  summarise(
+    Number_of_Rows = n(),
+    Number_of_Columns = ncol(.),
+    Missing_Values = colSums(is.na(.))
+  )
+
+head(nyd_sta)
+
+# summary statistics
+#number of rows: 9180(observations)
+#number of colomns: 34
+#missing value: 0
+
+```
+
+# Summary the daily blocking status for each property
+```{r}
+library(dplyr)
+library(ggplot2)
+
+nyd_sta <- nyd_sta %>%
+  mutate(DailyRevenue = `Average Daily Rate`)
+
+# Calculate the fraction of the number of days of a month already supplied (always 30 days)
+nyd_sta <- nyd_sta %>%
+  mutate(FractionDaysSupplied = `Count Available Days LTM` / 30)
+
+
+library(tidyverse)
+
+nyd_sta_processed_ <- nyd_sta %>%
+  group_by(PropertyID) %>%
+  summarise(
+    TotalDays = n(),
+    BlockedDays = sum(B == 1),
+    FractionSupplied = BlockedDays / TotalDays
+  )
+#The summary for each unique PropertyID in nyd_sta. The summary includes the total number of days (TotalDays), the number of days where the condition B == 1 is true (BlockedDays), and the fraction of days supplied under this condition (FractionSupplied).
+
+# Join the processed data with the original dataset
+nyd_sta_processed_ <- nyd_sta_processed_ %>%
+  left_join(nyd_sta, by = "PropertyID")
+
+nyd_sta_processed <- nyd_sta_processed_ %>%
+  group_by(PropertyID) %>%
+  slice(1)
+
+nyd_sta_processed <- nyd_sta_processed %>%
+  select(-B)
+
+# Calculate the fraction of days supplied
+nyd_sta_processed <- nyd_sta_processed %>%
+  mutate(FractionDaysSupplied = `Number of Bookings LTM` / 30)
+nyd_sta_processed$BlockingStatus <- nyd_sta_processed$BlockedDays / nyd_sta_processed$TotalDays
+
+head(nyd_sta_processed)
+```
+
+
+
+# Create a ggplot for Supply Curve Analysis:
+```{r}
+library(ggplot2)
+nyd_sta_plot <- ggplot(nyd_sta_processed, aes(x = FractionSupplied, y = `Average Daily Rate`, color = BlockingStatus)) +
+  geom_point() +
+  labs(x = "Blocking Status", y = "Average Daily Rate", title = "Supply Curve Analysis") +
+  scale_color_gradient(low = "blue", high = "red", name = "Blocking Status") +
+  theme_minimal()
+
+summary(nyd_sta_plot)
+nyd_sta_plot
+```
+
+# Perform linear regression
+```{r}
+library(dplyr)
+lm_model <- lm(`Average Daily Rate` ~ FractionSupplied, data = nyd_sta_processed)
+
+# Get regression line equation and R-squared value
+regression_equation <- as.character(lm_model$coefficients[1]) %>%
+  paste(" + ", as.character(lm_model$coefficients[2]), " * x")
+
+r_squared <- summary(lm_model)$r.squared
+
+# Print the results
+cat("Regression Equation: y =", regression_equation, "\n")
+cat("R-squared Value:", r_squared, "\n")
+```
+
+
+
+## according to different Neighborhood and property types
+#All Neighborhood Analysis:
+```{r}
+plot_all <- ggplot(nyd_sta_processed, aes(x = FractionSupplied, y = Price)) +
+  geom_point(aes(color = as.factor(`Property Type`), shape = as.factor(Neighborhood))) +
+  labs(x = "Blocking Status", y = "Daily Revenue") +
+  scale_color_discrete(name = "Property Type") +
+  scale_shape_discrete(name = "Neighborhood")
+plot_all
+```
+#East Village Neighborhood Analysis:
+```{r}
+plot_EastV <- ggplot(nyd_sta_processed, aes(x = FractionSupplied, y = Price)) +
+  geom_point(data = subset(nyd_sta_processed, Neighborhood == "East Village"),
+             aes(color = as.factor(`Property Type`))) +
+  labs(x = "Blocking Status", 
+       y = "Daily Revenue") +
+  scale_color_discrete(name = "Property Type")
+plot_EastV
+```
+
+#Stuyvesant Town Neighborhood Analysis:
+```{r}
+plot_Stown <- ggplot(nyd_sta_processed, aes(x = FractionSupplied, y = Price)) +
+  geom_point(data = subset(nyd_sta_processed, Neighborhood == "Stuyvesant Town"),
+             aes(color = as.factor(`Property Type`))) +
+  labs(x = "Blocking Status", 
+       y = "Daily Revenue") +
+  scale_color_discrete(name = "Property Type")
+plot_Stown 
+```
+
+# write the dataset
+```{r}
+library(writexl)
+
+# Export to Excel
+write_xlsx(nyd_sta, "nyd-sta.xlsx")
+```
