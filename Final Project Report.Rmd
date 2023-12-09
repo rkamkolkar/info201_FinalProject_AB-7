@@ -1,0 +1,279 @@
+---
+title: "Final Project Report"
+author: "Rasan Kamkolkar"
+date: "2023-12-09"
+output: html_document
+---
+
+# Introduction
+
+Airbnb has revolutionized the travel and accommodation industry since its inception in 2008. The platform enables individuals to rent or lease short-term lodging, providing a unique and personalized alternative to traditional hotels. As of now, we understand that Airbnb has gained immense popularity, offering a diverse range of listings worldwide.
+
+Our curiosity stems from being interested in Airbnb but not having tried it yet. We are intrigued by how the platform operates, how hosts manage their listings, and, particularly, how Airbnb generates revenue. The dynamics of the sharing economy and the disruptive impact of platforms like Airbnb on the traditional hospitality sector make this topic captivating.
+
+Currently, we know that Airbnb makes money through service fees charged to both hosts and guests, but the intricacies of their revenue model and the factors influencing successful listings remain intriguing. Understanding the behind-the-scenes mechanisms of listing management and revenue generation would contribute valuable insights.
+
+We aim to shed light on the strategies hosts employ to effectively manage their listings, optimize occupancy rates, and provide a positive guest experience. By doing so, we hope to contribute a more comprehensive understanding of the Airbnb ecosystem, benefiting those interested in the platform’s business dynamics and operational strategies.
+
+### We aim to explore three specific main questions:
+
+The first question is, “is pricing an important factor influencing guests’ decisions to reserve a particular Airbnb?” The short answer to this question is yes.The variable “Price” exhibits a positive correlation with the minimum number of nights and the availability of 365 days. On the other hand, the calculated host listings demonstrate a negative correlation with price, and the accompanying graph illustrates the weakest correlation with the number of reviews. Potential visitors can use the insights to make informed selections about their lodging selections. Understanding the elements affecting pricing facilitates guests find listings that healthy their possibilities and finances.
+
+The second question is, “is there a relationship between the number of reviews a property has and the number of bookings it gets?” There are many factors when it comes to Airbnbs that influence whether a customer wants to rent one out or not. However, one of the factors which isn’t looked at too often is customer feedback, in other words the number of reviews that each property gets. When looking to spend money online, whether on online orders, hotels, Airbnbs, etc. customers often seek out as much information about the things they want to buy as they can, and a major place they get information is by reviews from other customers. Reviews are an important way for people to gain confidence that the property they’ve selected is a good fit for them, especially if many other people had good experiences at the property. By looking for a relationship between the number of reviews and the number of bookings, we can possibly give Airbnb property managers and hosts a new way to increase bookings - by increasing the number of reviews on their property.
+
+The final question is, “is the blocking strategy related to the supply curve dynamics?” This research aims to provide insights into how property owners' decisions to block their properties impact revenue and occupancy rates. By examining the interaction between blocking behavior, property attributes, and location, we aim to uncover patterns that can inform property management strategies.
+
+ 
+# Data
+
+Our utilization of the New York City Airbnb Open Data serves multiple purposes, primarily driven by the need for comprehensive insights into Airbnb listing activity in NYC for the year 2019. The dataset, originating from Inside Airbnb, aligns with our research objectives due to its recent collection timeframe, relevance to an immensely popular city, and mission-driven nature focused on providing data and advocacy regarding Airbnb's impact.
+
+Inside Airbnb, a community-driven initiative, took charge of data collection, emphasizing transparency and collaboration to compile detailed information on Airbnb listings in NYC. The organization's dedication to a mission-driven project contributes to the dataset's credibility and relevance for various analyses related to host information, geographical availability, and predictive metrics.
+
+The dataset's usage permissions are favorable for researchers, policymakers, and data enthusiasts, as it is freely available for everyone. There appear to be no restrictions on who can access the data or for what purposes it can be used, offering an open and inclusive platform for exploration and analysis.
+
+Focusing on the dataset's content, it revolves around Airbnb listing activity in New York City for the year 2019. The population under consideration comprises all Airbnb properties in NYC, with the sample specifically focusing on properties in the year 2019. This specificity ensures that analyses can be conducted with a targeted and relevant subset of data.
+
+Regarding data quality, the dataset demonstrates overall excellence, with one notable exception. While the majority of columns contain meaningful and relevant information, one column was identified to have nonsensical data. However, this quality issue has been diligently addressed by excluding the problematic column from the final dataset, ensuring the integrity of the remaining data.
+
+In the final dataset, each row represents a unique property listing, and there are a total of 9180 observations. The dataset consists of 34 variables, including essential information such as PropertyID, Status, Price, Property Type, Listing Type, Neighborhood, Average Daily Rate, Annual Revenue, and more. These variables are coded based on specific characteristics, providing a comprehensive overview of the Airbnb listing landscape in NYC for 2019.
+
+Variables explanations:
+
+- PropertyID: Unique identifier for each property.
+- Status: The status of the property (A or B).
+- Price: The price of the property.
+- Property Type: Type of the property (e.g., Apartment).
+- Listing Type: Type of listing (e.g., Entire home/apt).
+- Neighborhood: The neighborhood in which the property is located.
+- Average Daily Rate: The average daily rental rate.
+- Annual Revenue LTM: Annual revenue for the last twelve months.
+- Occupancy Rate LTM: Occupancy rate for the last twelve months.
+- Number of Bookings LTM: Number of bookings in the last twelve months.
+- Number of Reviews: The total number of reviews for the property.
+- Overall Rating: Overall rating of the property.
+- Bedrooms: Number of bedrooms in the property.
+- Bathrooms: Number of bathrooms in the property.
+- Max Guests: Maximum number of guests the property can accommodate.
+- Response Rate: The response rate of the property.
+- Response Time (min): Response time in minutes.
+- Superhost: Whether the property is a superhost (TRUE or FALSE).
+- Cancellation Policy: The cancellation policy for the property.
+- Security Deposit: Security deposit amount.
+- Cleaning Fee: Cleaning fee amount.
+- Extra People Fee: Fee for extra guests.
+- Published Nightly Rate: Published nightly rental rate.
+- Published Monthly Rate: Published monthly rental rate.
+- Published Weekly Rate: Published weekly rental rate.
+- Minimum Stay: Minimum stay required for booking.
+- Count Reservation Days LTM: Count of reservation days in the last twelve months.
+- Count Available Days LTM: Count of available days in the last twelve months.
+- Count Blocked Days LTM: Count of blocked days in the last twelve months.
+- Number of Photos: Number of photos associated with the property.
+- Business Ready: Whether the property is business-ready (TRUE or FALSE).
+- Instantbook Enabled: Whether instant booking is enabled (TRUE or FALSE).
+- Latitude: Latitude coordinate of the property.
+- Longitude: Longitude coordinate of the property.
+
+As for data quality in the relevant variables, there are no missing values, non-plausible values, or other significant issues. The dataset maintains a high standard, allowing for reliable and meaningful analyses in exploring the dynamics of Airbnb listing activity in New York City during the specified timeframe.
+
+
+# Methods
+
+For Freya’s Question (Q3):
+
+First step:
+
+Data cleaning:
+To prepare the data, several preprocessing steps were performed to ensure data quality and model suitability.  
+Due to the nature of the dataset and the goal of the analysis, certain independent variables, such as "...1.x,""Date," "BookedDate," “Listing Title,"”Created Date,””ZipCode,””Metropolitan Statistical Area,””Calendar Last Updated,””Check-in Time,””Checkout Time,””Listing URL,””Listing Main Image URL,””price_norm,”and ”photo_room_ratio” were excluded from the analysis. These variables were deemed irrelevant or uninformative for predicting the status of the Airbnb listings. 
+
+Secondly, for “Security Deposit,””Cleaning Fee,”and ”Extra People Fee,” the “NA” value for those columns are changed to 0, since “NA” indicates that the Airbnbs would not charge such fees. 
+
+Furthermore, for “Property Type,””Listing Type,” ”Neighborhood,” ”Superhost,” ”Cancellation Policy,” ”Business Ready,”and ”Instant Book Enabled,” the characters are changed to factor. While for “Overall Rating,””Response Rate,””Response Time(min),”and ”Published Weekly Rate,” the characters are changed to the number. 
+
+Finally, all the “NA '' are omitted in the last result, nyd_sta. In this way, the dataset was appropriately prepared for the analysis, and any potential biases or issues that could affect the model's performance were minimized.
+Second step: exploring the data and create variables
+
+The research approach comprised a systematic combination of data analysis, data visualization, and statistical modeling techniques. The methodology involved the following key steps:
+
+- Data Preprocessing and Selection: The combined dataset of “ny_april_10009_HAN_1_1_2” and “ny_property_HAN (1) (1) 2”, “nyd_sta”, was carefully preprocessed and cleaned to ensure data accuracy and relevance. The selection of our sample (data from 2019) was done based on availability as well as simplicity for analysis, so as to not have too many data points from many different years. The main changes are:
+  - FractionSupplied Calculation: the FractionSupplied feature is calculated by dividing TotalDays - BlockedDays by TotalDays. This metric represents the fraction of days a property was available for booking.
+  - PropertyID Grouping: the data is grouped by the same PropertyID, which means one property only has one row of data. The property status, which is the only difference for one property across a month, is replaced by BlockingStatus, the average blocking.  
+  - Neighborhood Grouping: properties are regrouped by neighborhood (East Village and Stuyvesant Town) to analyze neighborhood-specific trends.
+  - Price: the price of an Airbnb property, in order to measure how price affects Airbnb popularity.
+  - Number of reviews: the number of reviews that an Airbnb property has received from customers, less looked at variable to provide more insight at how more minor things may affect Airbnb popularity.
+  - Number of bookings LTM: the number of times an Airbnb has been booked over the last twelve months (LTM), very standard metric to gauge Airbnb popularity.
+- Model Selection and Linear Regression: To quantify the relationship between key variables, we constructed a linear regression model. Our chosen model included daily revenue as the dependent variable (y) and the fraction of days supplied as the independent variable (x). This choice was driven by the hypothesis that the willingness to block relates to supply dynamics.
+- Data Visualization and Graphs: We employed scatter plots and line plots for visualizing supply curve dynamics and property attributes in relation to blocking behavior. We used scatterplots to compare the number of reviews to both price and number of bookings, and then a histogram to visualize the frequency of price.
+  - Before exploring the impacts of neighborhood and property types on blocking, the impacts of daily revenue and booking volume on blocking are verified. By plotting the daily revenue (willingness to block) against the fraction of days supplied, how the willingness to block changes as the supply of available days for booking varies is observed, aiming to understand the supply and demand balance.
+  - Separate graphs for each neighborhood are created, so the supply curves of properties within the same neighborhood but of different types and sizes are compared. This comparison will reveal whether properties in the same neighborhood but with varying characteristics exhibit different behaviors in terms of blocking.
+  
+For Cas’ Question (Q1): 
+
+- A graph for the frequency of price was created to show how popular Airbnbs with varying prices are 
+
+- A graph for the number of reviews compared to the price was created to see if there was a relationship between the two variables
+
+
+For Rasan’s Question (Q2):
+
+- A graph comparing the relationship between the number of reviews on an Airbnb property and the number of bookings that property got was created to assess whether there was any possible relationship between the two variables
+
+
+# Results
+ 
+### Question 1
+
+Relationship between price and guests' decisions to reserve a particular Airbnb:
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+library(magick)
+img <- image_read("Cas1.png")
+par(mar=c(0,0,0,0))
+plot(img)
+```
+
+```{r, echo=FALSE}
+img <- image_read("Cas2.png")
+par(mar=c(0,0,0,0))
+plot(img)
+```
+
+For both graphs,
+
+The trend where cheaper prices tend to accumulate more reviews can be attributed to a combination of factors. Affordable items are often more accessible to a broader audience, leading to higher sales volumes and more opportunities for customers to leave reviews. Additionally, the lower perceived risk associated with cheaper products may encourage consumers to make impulse purchases, increasing the likelihood of them sharing their experiences through reviews. Online marketplaces and algorithms that prioritize popular and frequently reviewed items can further amplify this trend, giving inexpensive products more visibility and contributing to a cycle of increased purchases and reviews.
+
+Conversely, more expensive prices may have a smaller customer base due to their higher price point, potentially resulting in fewer overall reviews. Additionally, consumers making significant investments in pricier items may conduct more thorough research before purchasing, leading to a slower rate of review submissions. While this trend is a general observation, exceptions exist, and certain expensive products may still garner a considerable number of reviews if they offer exceptional value or cater to a specific market segment.
+
+
+
+### Question 2
+
+Relationship between number of reviews and number of bookings:
+
+```{r, echo=FALSE}
+img <- image_read("Rasan1.png")
+par(mar=c(0,0,0,0))
+plot(img)
+```
+
+According to the graph, there seems to be a positive correlation between the number of reviews an Airbnb property gets and the number of bookings it gets as well. The relationship seems moderately positive and its shape is logarithmic rather than linear, showing that it may plateau over time or get close to that. Importantly, this data is only correlational and not causational. We cannot infer that more reviews causes more bookings, only that there seems to be some sort of relationship between the two. This is crucial to keep in mind when analyzing the data, so as to not draw conclusions that extend beyond the scope of what the data tells us.
+
+
+
+### Question 3
+
+The relationship between blocking status and the daily rates (daily price): 
+
+According to the graph, there is no noticeable trend telling the relationship between properties’ average daily rates and the likelihood of being blocked. In the graph, as the fraction of days supplied (representing the likelihood of being blocked) changed, the properties’ rates don't display a tendency of increasing or decreasing price.  
+
+```{r, echo=FALSE}
+img <- image_read("Freya1.png")
+par(mar=c(0,0,0,0))
+plot(img)
+```
+
+Specifically, we investigate the detailed information from two towns the data covered. Beginning with the East Village Neighborhood analysis. According to the graph, the majority of properties are apartments with average daily revenues mostly staying below $750. In terms of supply-demand balance, as the fraction of days supplied increases, we don’t have  a noticeable trend in the number of data points. The points are gathered between 0 to 1 day supplied evenly.
+
+```{r, echo=FALSE}
+img <- image_read("Freya2.png")
+par(mar=c(0,0,0,0))
+plot(img)
+```
+
+ Then, we take a look at another neighborhood, Stuyvesant Town Neighborhood. According to the graph, Stuyvesant Town neighborhood primarily consists of apartments with average daily revenues predominantly staying below $200.
+The dataset features a smaller number of properties, all of which belong to the "Apartment" category. These properties exhibit a more randomized distribution across the range of average daily rates.
+
+```{r, echo=FALSE}
+img <- image_read("Freya3.png")
+par(mar=c(0,0,0,0))
+plot(img)
+```
+
+# Discussion
+
+### Question 1:
+
+Yes, pricing is a crucial factor influencing guests' decisions to reserve a particular Airbnb. The cost of accommodation plays a significant role in shaping consumer behavior in the hospitality industry, including short-term rentals on platforms like Airbnb. Guests often consider pricing as a primary factor for several reasons.
+
+Firstly, affordability is a key concern for many travelers. Potential guests assess their budget constraints and seek accommodations that align with their financial means. Airbnb offers a range of listings with varying price points, making it attractive to a diverse audience with different budget considerations.
+
+Secondly, guests often perceive pricing as an indicator of value. They expect a certain level of amenities, cleanliness, and overall quality in relation to the cost of the rental. Higher prices may create expectations for a more luxurious or well-equipped space, while lower prices may appeal to budget-conscious travelers willing to compromise on certain features.
+
+Moreover, competitive pricing within a particular location or for specific types of accommodations can influence a guest's decision-making process. Hosts who strategically set their prices in line with market demand and comparable listings may attract more reservations.
+
+In summary, pricing is a critical factor in the decision-making process for guests when reserving an Airbnb. It not only affects the affordability for travelers but also shapes perceptions of value and quality associated with the accommodation. Hosts need to carefully consider their pricing strategy to attract the right audience and remain competitive in the Airbnb marketplace.
+
+
+### Question 2:
+
+The question being asked was whether there is a relationship between the number of reviews an Airbnb property has and the number of bookings the Airbnb property gets over the last twelve months. The data showed a moderate positive correlation for these two variables, suggesting that there may be some sort of relationship and that the more reviews a property has, the more likely people are to rent it out. Being a variable that isn’t examined much, if the number of reviews really does have an effect on Airbnb popularity this could help the property managers and hosts of Airbnbs in New York City by giving them another way to attract customers. They could incentivize customers to give them reviews to try and increase how attractive their property looks to potential future customers.
+
+There are definitely limitations to this claim though, the biggest one being what was mentioned briefly in the results section earlier. This is the fact that this analysis is purely correlational. There is no causality implied, so it can’t be inferred that more reviews causes more bookings, just that there is some sort of relationship between the two. As such, the claim can’t be extended terribly far, it’s most likely that the claim will be used as grounds to conduct a further, more detailed investigation in the future.
+
+Speaking of future work, it’s likely that to make this data into a very concrete claim that can be fully trusted by Airbnb property an actual experiment will need to be done. Property managers and hosts may be unwilling to change what they do in terms of customer reviews unless the data is causal rather than correlational, and so an experiment could be done with two properties operated by the same team where one property has encouraged reviews and the other doesn’t. It may also be helpful to analyze popularity over time, maybe seeing how fast similar Airbnbs grew in popularity and comparing that to the number of reviews each one had. Both of these could be ways to take our data and extend it further, hopefully resulting in a more impactful story.
+
+
+### Question 3:
+
+To investigate the blocking behavior of property owners and its relationship with supply curve dynamics, we first did the supply curve analysis. We assumed that there will be a noticeable trend where properties with higher average daily rates tend to have a higher likelihood of being blocked. The assumed trend represents that when the average daily rate is higher, property owners might be more confident in temporarily blocking their listings to create scarcity and potentially secure higher rates during periods of peak demand. However, according to the graph, it doesn’t show such a tendency. 
+
+To resume this result, we divided it into two analyses, separately analyzing different town’s data. For the East Village Neighborhood, the properties in this neighborhood are more affordable on average. However, it doesn’t show any noticeable trends, which indicates that the property owners seem to not be selective about the days they make their listings available. 
+
+At the same time, for the Stuyvesant Town Neighborhood, there is no discernible trend suggesting a consistent strategy in terms of days supplied as well. Stuyvesant Town Neighborhood primarily consists of apartments with average daily revenues predominantly staying below $200, which have a lower pricing structure on average compared to East Village, and most of them are blocked all the time. However, since there is too little data to tell a trend,  it doesn’t show that the hosts would have different blocking strategies according to different price settings. 
+
+There is a limitation of this approach. Instead of investigating the relationship between the blocking status and the pricing in terms of different neighborhoods, it could be more informative if we investigate the relationship in terms of other factors, like overall rating, facilities, and etc. Since there are only a limited number of neighborhoods, it may not provide very comprehensive results. 
+
+
+# Summary
+
+Pricing stands as a critical determinant in guests' decisions to reserve accommodations on Airbnb. Affordability is a primary concern for travelers, leading them to evaluate accommodations based on budget constraints. Airbnb's diverse range of listings, featuring varying price points, caters to a broad audience with different budget considerations. Guests associate pricing not only with affordability but also with the perceived value of their stay. The expectation is set for a certain level of amenities, cleanliness, and overall quality relative to the cost of the rental. This correlation between pricing and expectations emphasizes the importance of hosts carefully strategizing their pricing, aligning it with market demand and comparable listings. Competitive pricing within a location or for specific accommodations significantly influences guests' decision-making, prompting hosts to strategically set prices for increased reservations. In summary, pricing plays a pivotal role in shaping guests' decisions, impacting affordability and shaping perceptions of value and quality associated with the accommodation.
+
+The examination of the relationship between the number of reviews an Airbnb property has and the number of bookings it receives reveals a moderate positive correlation. This suggests a connection between the two variables, indicating that as the number of reviews increases, the likelihood of bookings also rises. This finding has potential implications for property managers and hosts in New York City, offering an additional means to attract customers. Encouraging customers to leave reviews could enhance a property's perceived attractiveness to potential future guests. However, it's crucial to acknowledge the limitations of this claim, notably that the analysis is purely correlational. The correlation doesn't imply causation; it establishes the existence of a relationship between reviews and bookings. Therefore, caution is advised in interpreting this finding, and it is likely to serve as a foundation for further, more detailed investigations.
+
+The investigation into the blocking behavior of property owners and its relationship with supply curve dynamics introduces nuanced findings. Assumptions about a noticeable trend, where properties with higher average daily rates tend to have a higher likelihood of being blocked, were not supported by the data. The graph doesn't reveal a consistent tendency for property owners to block listings when the average daily rate is higher. Separate analyses for different neighborhoods—East Village and Stuyvesant Town—yielded inconclusive results. In East Village, where properties are generally more affordable, no noticeable trends emerged, indicating that property owners might not be selective about the days they make their listings available. Similarly, for Stuyvesant Town, predominantly consisting of apartments with average daily revenues below $200, there was no discernible trend, and most properties were consistently blocked. A crucial limitation of this approach is the exclusive focus on investigating the relationship between blocking status and pricing in different neighborhoods. A more informative analysis could involve exploring the relationship in terms of other factors, such as overall rating and facilities. Given the limited number of neighborhoods in the study, a comprehensive understanding of the dynamics influencing blocking behavior would benefit from a more expansive investigation.
+
+In conclusion, these insights provide valuable considerations for both guests and hosts in the Airbnb ecosystem, emphasizing the multifaceted role of pricing, reviews, and blocking strategies in shaping the dynamics of short-term rentals.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
